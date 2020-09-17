@@ -14,6 +14,8 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        // args = new String[]{"-d", "-s", "out.txt", "in1.txt", "in2.txt"};
+
         if (args.length < 3) {
             help();
             throw new IllegalArgumentException("Not enough command line arguments.");
@@ -66,7 +68,6 @@ public class Main {
         String outFile;
         String[] files = new String[]{};
 
-
         if (hasOrderByArgument) {
             outFile = args[2];
             files = Arrays.copyOf(files, argsLength - 3);
@@ -81,8 +82,7 @@ public class Main {
             FileMergeSorting<String> fileMergeSorting = new FileMergeSorting<>(files, outFile, elementsType);
             fileMergeSorting.mergingFiles(orderBy);
         } catch (FileNotFoundException e) {
-            System.out.println("File not found: " + e.getMessage());
-            e.printStackTrace();
+            System.out.println("Input file not found: " + e.getMessage());
         }
     }
 }

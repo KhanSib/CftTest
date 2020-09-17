@@ -27,15 +27,24 @@ public class FileMergeSorting<T> {
         comparator = getComparator(elementsType);
     }
 
-    private Comparator<T> getComparator(ElementsType elementsType) {
+    private Comparator<T> getComparator(ElementsType elementsType) throws NumberFormatException {
         if (elementsType == ElementsType.INTEGER) {
-            return (Comparator<T>) Comparator.comparingInt(Object::hashCode);
+            return (o1, o2) -> {
+                int int1 = Integer.parseInt(o1.toString());
+                int int2 = Integer.parseInt(o2.toString());
+
+                return int1 - int2;
+            };
         }
 
         if (elementsType == ElementsType.STRING) {
-            return (Comparator<T>) Comparator.naturalOrder();
-        }
+            return (o1, o2) -> {
+                String s1 = (String) o1;
+                String s2 = (String) o2;
 
+                return s1.compareToIgnoreCase(s2);
+            };
+        }
         return null;
     }
 
@@ -45,16 +54,21 @@ public class FileMergeSorting<T> {
                 T currentElement = fileScanners.get(0).getElement();
                 int currentIndex = 0;
 
-                int coefficient = 1;
+                int sign = 1;
 
                 if (orderBy == OrderBy.DESC) {
-                    coefficient = -1;
+                    sign = -1;
                 }
 
                 for (int i = 0; i < fileScanners.size(); i++) {
-                    if (comparator.compare(currentElement, fileScanners.get(i).getElement()) * coefficient > 0) {
-                        currentElement = fileScanners.get(i).getElement();
-                        currentIndex = i;
+                    try {
+                        if (comparator.compare(currentElement, fileScanners.get(i).getElement()) * sign > 0) {
+                            currentElement = fileScanners.get(i).getElement();
+                            currentIndex = i;
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("invalid data format in file: " + fileScanners.get(i).getFileName());
+                        return;
                     }
                 }
 
@@ -67,9 +81,8 @@ public class FileMergeSorting<T> {
                     fileScanners.remove(currentIndex);
                 }
             }
-        } catch (
-                FileNotFoundException e) {
-            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            System.out.println("Output file not found: " + e.getMessage());
         }
     }
 }
