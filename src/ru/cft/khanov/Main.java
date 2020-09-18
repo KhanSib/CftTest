@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {
-        //args = new String[]{"-a", "-b", "out.txt", "in1.txt", "in2.txt"};
+        //args = new String[]{"-d", "-i", "out.txt", "in1.txt", "in2.txt"};
 
         if (args.length < 3) {
             help();
