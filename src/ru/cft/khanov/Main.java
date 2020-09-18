@@ -4,22 +4,15 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 
 public class Main {
-    private static void help() {
-        System.out.println("First argument: sort mode -a ascending," +
-                " -d descending, optional, default sorted by ascending;");
-        System.out.println("Second argument: data type -s text, -i number, is necessary;");
-        System.out.println("Third argument: output file name, is necessary;");
-        System.out.println("Subsequent arguments: input file names, at least one;");
-        System.out.println("Example: main -d -s out.txt in1.txt in2.txt");
-    }
-
     public static void main(String[] args) {
+        //args = new String[]{"-a", "-b", "out.txt", "in1.txt", "in2.txt"};
+
         if (args.length < 3) {
             help();
             throw new IllegalArgumentException("Not enough command line arguments.");
         }
 
-        ElementsType elementsType = ElementsType.INTEGER;
+        LinesType linesType = LinesType.INTEGER;
         OrderBy orderBy = OrderBy.ASC;
 
         String args0 = args[0];
@@ -44,28 +37,13 @@ public class Main {
         String args1 = args[1];
 
         if (hasOrderByArgument) {
-            if (args1.equals("-s") || args1.equals("-i")) {
-                if (args1.equals("-s")) {
-                    elementsType = ElementsType.STRING;
-                }
-            } else {
-                help();
-                throw new IllegalArgumentException("Not valid command line arguments.");
-            }
+            linesType = getLinesType(linesType, args1);
         } else {
-            if (args0.equals("-s") || args0.equals("-i")) {
-                if (args0.equals("-s")) {
-                    elementsType = ElementsType.STRING;
-                }
-            } else {
-                help();
-                throw new IllegalArgumentException("Not valid command line arguments.");
-            }
+            linesType = getLinesType(linesType, args0);
         }
 
         String outFile;
         String[] files = new String[]{};
-
 
         if (hasOrderByArgument) {
             outFile = args[2];
@@ -78,11 +56,41 @@ public class Main {
         }
 
         try {
-            FileMergeSorting<String> fileMergeSorting = new FileMergeSorting<>(files, outFile, elementsType);
+            FileMergeSorting fileMergeSorting = new FileMergeSorting(files, outFile, linesType);
             fileMergeSorting.mergingFiles(orderBy);
         } catch (FileNotFoundException e) {
-            System.out.println("File not found: " + e.getMessage());
-            e.printStackTrace();
+            System.out.println("Input file not found: " + e.getMessage());
         }
+    }
+
+    private static void help() {
+        System.out.println("First argument: sort mode -a ascending," +
+                " -d descending, optional, default sorted by ascending;");
+        System.out.println("Second argument: data type -s text, -i int number, " +
+                "-l long number, -b bigInteger number, is necessary;");
+        System.out.println("Third argument: output file name, is necessary;");
+        System.out.println("Subsequent arguments: input file names, at least one;");
+        System.out.println("Example: main -d -s out.txt in1.txt in2.txt");
+    }
+
+    private static LinesType getLinesType(LinesType linesType, String arg) {
+        if (arg.equals("-s") || arg.equals("-l") || arg.equals("-b") || arg.equals("-i")) {
+            if (arg.equals("-s")) {
+                linesType = LinesType.STRING;
+            }
+
+            if (arg.equals("-l")) {
+                linesType = LinesType.LONG;
+            }
+
+            if (arg.equals("-b")) {
+                linesType = LinesType.BIGINTEGER;
+            }
+        } else {
+            help();
+            throw new IllegalArgumentException("Not valid command line arguments.");
+        }
+
+        return linesType;
     }
 }

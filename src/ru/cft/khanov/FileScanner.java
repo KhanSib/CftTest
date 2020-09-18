@@ -4,25 +4,47 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-public class FileScanner<T> {
-    private T element;
+public class FileScanner {
+    private final String fileName;
+    private String line;
     private final Scanner scanner;
 
-    public FileScanner(String fileName) throws FileNotFoundException {
+    public FileScanner(String fileName, LinesType linesType) throws FileNotFoundException {
+        this.fileName = fileName;
+
         Scanner scanner = new Scanner(new FileInputStream(fileName));
         this.scanner = scanner;
 
-        if (scanner.hasNext()) {
-            element = (T) scanner.nextLine();
+        String nextLine = null;
+
+        while (scanner.hasNext()) {
+            nextLine = scanner.nextLine();
+
+            if (!nextLine.isEmpty() && FileMergeSorting.isLineValid(nextLine, linesType)) {
+                break;
+            }
+
+            if (!nextLine.isEmpty()) {
+                System.out.println("invalid data format in file: " + fileName
+                        + ", contents of line: " + nextLine);
+            }
+        }
+
+        if (nextLine != null) {
+            line = nextLine;
         }
     }
 
-    public T getElement() {
-        return element;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setElement(T element) {
-        this.element = element;
+    public String getLine() {
+        return line;
+    }
+
+    public void setLine(String line) {
+        this.line = line;
     }
 
     public Scanner getScanner() {
